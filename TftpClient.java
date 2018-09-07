@@ -3,21 +3,19 @@ import java.net.*;
 import java.io.*;
 import java.lang.*;
 
-public class SimpleClient {
+public class SimpleClient extends TftpUtility {
 
     public static void main(String args[]) {
 
 
 	DatagramSocket dataSock;
+	DatagramPacket dataPack;
+	DatagramPacket message;
 	
 	String filename;
 	int portNum;
 	InetAddress server;
 	
-	
-
-
-
 	    try {
 		dataSock = new DatagramSocket();
 		
@@ -34,20 +32,14 @@ public class SimpleClient {
 			catch(Exception e)
 			    System.out.println("Please enter valid port number");
 
-			
-	
+			byte[] sending = filename.getBytes();
+			message = packRRQDatagramPacket(sending);
+
 	    }
-	    catch(Exception e)
+	    catch(Excepiton e)
 		{
-		    System.err.println("An exception occurred -> " + e);
+		    System.out.println("Error connecting to server ->  *" + e);
 		}
-	
-
-
-
-
-
-
-	
+	    
     }
 }
