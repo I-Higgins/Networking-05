@@ -3,7 +3,7 @@ import java.net.*;
 import java.io.*;
 import java.lang.*;
 
-public class SimpleClient extends TftpUtility {
+public class TftpClient extends TftpUtility {
 
     public static void main(String args[]) {
 
@@ -11,35 +11,89 @@ public class SimpleClient extends TftpUtility {
 	DatagramSocket dataSock;
 	DatagramPacket dataPack;
 	DatagramPacket message;
-	
+
 	String filename;
-	int portNum;
+	int portNum = 0;
 	InetAddress server;
-	
+  int count = 0;
+
 	    try {
 		dataSock = new DatagramSocket();
-		
-		if (args.Length != 3)
+
+		if (args.length != 3)
 		    {
 			System.out.println("Please enter a filename, serverIP and port number");
 			return;
 		    }
-		
-			filename = args[0]
-			    server = getInetAddress(args[1]);
-			try
-				portNum = Integer.parseInt(args[2]);
-			catch(Exception e)
-			    System.out.println("Please enter valid port number");
 
-			byte[] sending = filename.getBytes();
-			message = packRRQDatagramPacket(sending);
+			filename = args[0];
+			server = InetAddress.getByName(args[1]);
+      
+			try{
+				portNum = Integer.parseInt(args[2]);
+        }
+			catch(Exception e){
+			    System.out.println("Please enter valid port number");
+        }
+
+      //Create byte array to send data
+			byte[] filenameBytes = filename.getBytes();
+      byte[] sending = new byte[filenameBytes.length + 1];
+      filenameBytes[0] = RRQ;
+      //Create packet contents
+      for (int i = 1; i < sending.length; i ++)
+      {
+        sending[i] = filenameBytes[i - 1];
+      }
+			message = new DatagramPacket(sending, sending.length, server, portNum);
+
+
+
+      //Increment count by 1
+      count ++;
+      try {
+      //Send the packet
+      dataSock.send(message);
+      System.out.println("Packet " + Integer.toString(count) + " was sent");
+      }
+      catch(Exception e)
+      {
+        System.out.println("Error sending packet");
+      }
 
 	    }
-	    catch(Excepiton e)
+	    catch(Exception e)
 		{
-		    System.out.println("Error connecting to server ->  *" + e);
+      //Print error message
+		    System.out.println("Error connecting to server ->  *" + e + "*");
+        return;
 		}
-	    
+
+    try  {
+      //Create a timeout on the DatagramSocket
+      dataSock.setSoTimeout(70000);
+      //Create a byte array to receive the data into
+      byte[] buf = new byte[1020];
+      //Create a packet to receive the data using the byte array
+      dataPack = new DatagramPacket(buf, 1020);
+      //Wait to receive a packet
+      dataSock.receive(dataPack);
+      //Print success message
+      System.out.println("Received a packet from server");
+
+    }
+    catch(SocketTimeoutException e)
+    {
+      //Print error message
+      System.out.println("The server timed out  ->  " + e);
+    }
+    catch(Exception e)
+    {
+      //Print error message
+      System.out.println("There was an error receiving file");
+    }
+
+
+
     }
 }
