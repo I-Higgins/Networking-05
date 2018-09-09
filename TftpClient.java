@@ -41,9 +41,9 @@ public class TftpClient extends TftpUtility {
 	    byte[] sending = new byte[filenameBytes.length + 1];
 	    filenameBytes[0] = RRQ;
 	    //Create packet contents
-	    for (int i = 1; i < sending.length; i ++)
+	    for (int i = 0; i < sending.length - 1; i ++)
 		{
-		    sending[i] = filenameBytes[i - 1];
+		    sending[i + 1] = filenameBytes[i];
 		}
 	    message = new DatagramPacket(sending, sending.length, server, portNum);
 	    
